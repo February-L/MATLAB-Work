@@ -37,9 +37,12 @@ phi_end = 80.0 * pi; r_axis_end = 0.0; % 分别为：计算到phi为多少时停止、图像展示
 max_step_len = 0.01 * pi;
 the_canvas = figure(2);
 circle_phi_vals = 0.0: max_step_len: (2.0*pi); circle_phi_count = length(circle_phi_vals);
-polarplot(circle_phi_vals, zeros(1, circle_phi_count) + r_horizons(1), "r:");
-hold on;
-polarplot(circle_phi_vals, zeros(1, circle_phi_count) + r_horizons(2), "b:");
+if (~isempty(r_horizons))
+    polarplot(circle_phi_vals, zeros(1, circle_phi_count) + r_horizons(1), "r:"); hold on;
+end
+if (length(r_horizons) > 1)
+    polarplot(circle_phi_vals, zeros(1, circle_phi_count) + r_horizons(2), "b:");
+end
 
 ode_options = odeset('MaxStep', max_step_len, 'AbsTol', 1E-8, 'events', @stop_event);
 if (~use_E2_vals)
@@ -50,6 +53,7 @@ else
         init_dr = init_dr_direction * sqrt(E2_vals(i) - V2_func(init_r)) / const_L * init_r^2.0;
         the_solution = ode45(@eq_func, [0.0, phi_end], [init_r; init_dr], ode_options);
         polarplot(the_solution.x, the_solution.y(1, :), "k-");
+        hold on;
     end
 end
 if (r_axis_end > 0.0)
